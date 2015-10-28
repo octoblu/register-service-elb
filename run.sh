@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ -z "${ELB_NAME}" ]; then
+  echo "Missing ${ELB_NAME}, exiting."
+  exit 1
+fi
+
 INSTANCE_ID=$(aws ec2 describe-instances --filter "Name=private-dns-name,Values=${INSTANCE_HOSTNAME}" | jq -r '.Reservations[].Instances[].InstanceId')
 
 if [ -z "${INSTANCE_ID}" ]; then
@@ -8,5 +13,5 @@ if [ -z "${INSTANCE_ID}" ]; then
 fi
 
 aws elb register-instances-with-load-balancer \
-  --load-balancer-name service-cluster \
+  --load-balancer-name ${ELB_NAME} \
   --instances ${INSTANCE_ID}
